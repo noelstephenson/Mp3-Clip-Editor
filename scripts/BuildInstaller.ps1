@@ -7,67 +7,52 @@ $ErrorActionPreference = "Stop"
 $repoRoot = Split-Path -Parent $PSScriptRoot
 $publishDir = Join-Path $repoRoot "dist\publish"
 $outputDir = Join-Path $repoRoot "dist\installer"
-$stageDir = Join-Path $outputDir "stage"
-$zipPath = Join-Path $stageDir "app.zip"
-$installScriptSource = Join-Path $repoRoot "installer\InstallApp.ps1"
-$installScriptStage = Join-Path $stageDir "InstallApp.ps1"
-$installerPath = Join-Path $outputDir "Mp3ClipEditor-Setup-$Version.exe"
-$sedPath = Join-Path $outputDir "installer.sed"
+$issPath = Join-Path $repoRoot "installer\Mp3ClipEditor.iss"
+$isccFromPath = $null
+try {
+    $isccFromPath = (Get-Command iscc -ErrorAction Stop).Source
+}
+catch {
+}
+
+$isccCandidates = @(
+    $isccFromPath,
+    "C:\Users\Noel\AppData\Local\Programs\Inno Setup 6\ISCC.exe",
+    "C:\Program Files (x86)\Inno Setup 6\ISCC.exe",
+    "C:\Program Files\Inno Setup 6\ISCC.exe"
+) | Where-Object { -not [string]::IsNullOrWhiteSpace($_) -and (Test-Path $_) }
 
 if (-not (Test-Path $publishDir)) {
     throw "Publish directory not found at $publishDir. Run dotnet publish first."
 }
 
-if (-not (Test-Path $installScriptSource)) {
-    throw "Installer script not found at $installScriptSource."
+if (-not (Test-Path $issPath)) {
+    throw "Inno Setup script not found at $issPath."
 }
+
+if ($isccCandidates.Count -eq 0) {
+    throw "ISCC.exe was not found. Install Inno Setup or add ISCC to PATH."
+}
+
+$isccPath = [string]($isccCandidates | Select-Object -First 1)
 
 Remove-Item -Recurse -Force $outputDir -ErrorAction SilentlyContinue
-New-Item -ItemType Directory -Force -Path $stageDir | Out-Null
+New-Item -ItemType Directory -Force -Path $outputDir | Out-Null
 
-Copy-Item $installScriptSource $installScriptStage -Force
-Compress-Archive -Path (Join-Path $publishDir "*") -DestinationPath $zipPath -CompressionLevel Optimal
+$arguments = @(
+    "/DMyAppVersion=$Version",
+    "/DPublishDir=$publishDir",
+    "/DOutputDir=$outputDir",
+    "/DRepoRoot=$repoRoot",
+    $issPath
+)
 
-$sed = @"
-[Version]
-Class=IEXPRESS
-SEDVersion=3
-[Options]
-PackagePurpose=InstallApp
-ShowInstallProgramWindow=0
-HideExtractAnimation=1
-UseLongFileName=1
-InsideCompressed=0
-CAB_FixedSize=0
-CAB_ResvCodeSigning=0
-RebootMode=N
-InstallPrompt=
-DisplayLicense=
-FinishMessage=MP3 Clip Editor has been installed.
-TargetName=$installerPath
-FriendlyName=MP3 Clip Editor Setup
-AppLaunched=powershell.exe -ExecutionPolicy Bypass -NoProfile -File InstallApp.ps1
-PostInstallCmd=<None>
-AdminQuietInstCmd=
-UserQuietInstCmd=
-SourceFiles=SourceFiles
-[Strings]
-FILE0=InstallApp.ps1
-FILE1=app.zip
-[SourceFiles]
-SourceFiles0=$stageDir\
-[SourceFiles0]
-%FILE0%=
-%FILE1%=
-"@
-
-Set-Content -Path $sedPath -Value $sed -Encoding ASCII
-
-$process = Start-Process -FilePath "iexpress.exe" -ArgumentList "/N", $sedPath -Wait -PassThru -WindowStyle Hidden
-if ($process.ExitCode -ne 0) {
-    throw "IExpress failed with exit code $($process.ExitCode)."
+& $isccPath @arguments
+if ($LASTEXITCODE -ne 0) {
+    throw "Inno Setup failed with exit code $LASTEXITCODE."
 }
 
+$installerPath = Join-Path $outputDir "Mp3ClipEditor-Setup-$Version.exe"
 if (-not (Test-Path $installerPath)) {
     throw "Installer was not created."
 }
