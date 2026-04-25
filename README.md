@@ -3,6 +3,7 @@
 Windows desktop application for creating MP3 clips from full songs, previewing edits in real time, and managing artist/title ID3 tags with filename-aware tools.
 
 ![MP3 Clip Editor](./Mp3ClipEditor.png)
+![MP3 Clip Editor - Bulk Renamer](./Mp3ClipEditor2.png)
 
 ## What It Does
 
