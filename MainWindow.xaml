@@ -111,14 +111,14 @@
         <ColumnDefinition Width="1.9*" />
       </Grid.ColumnDefinitions>
       <Grid.RowDefinitions>
-        <RowDefinition Height="Auto" />
         <RowDefinition Height="*" />
+        <RowDefinition Height="Auto" />
       </Grid.RowDefinitions>
 
       <Border Grid.Column="0"
-              Grid.Row="0"
-              Margin="0,0,14,14"
-              Padding="16"
+              Grid.Row="1"
+              Margin="0,0,14,0"
+              Padding="14"
               CornerRadius="18"
               Background="{StaticResource PanelBackgroundBrush}"
               BorderBrush="{StaticResource BorderBrushStrong}"
@@ -127,25 +127,11 @@
           <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
           </Grid.RowDefinitions>
 
-          <StackPanel Grid.Row="0" Margin="0,0,0,14">
-            <TextBlock FontSize="18" FontWeight="Bold" Text="Load MP3 Files" />
-            <TextBlock Margin="0,6,0,12"
-                       Foreground="{StaticResource SubtleTextBrush}"
-                       TextWrapping="Wrap"
-                       Text="Choose multiple MP3 files or drag them onto this window." />
-            <WrapPanel>
-              <Button Click="AddFilesButton_Click" Content="Add MP3 Files" />
-              <Button Click="RemoveSelectedButton_Click" Background="#FFF2ECE5" Foreground="{StaticResource TextBrush}" Content="Remove Active Track" />
-              <Button Click="ResetAllButton_Click" Background="#FFF2ECE5" Foreground="{StaticResource TextBrush}" Content="Reset All" />
-            </WrapPanel>
-          </StackPanel>
-
-          <StackPanel Grid.Row="1" Margin="0,0,0,12">
+          <StackPanel Grid.Row="0" Margin="0,0,0,10">
             <TextBlock FontSize="18" FontWeight="Bold" Text="Track Defaults" />
-            <TextBlock Margin="0,6,0,12"
+            <TextBlock Margin="0,4,0,10"
                        Foreground="{StaticResource SubtleTextBrush}"
                        TextWrapping="Wrap"
                        Text="Applied to new tracks and reusable across the loaded queue." />
@@ -192,9 +178,9 @@
             </WrapPanel>
           </StackPanel>
 
-          <StackPanel Grid.Row="2">
+          <StackPanel Grid.Row="1">
             <TextBlock FontSize="18" FontWeight="Bold" Text="Track Export Status" />
-            <TextBlock Margin="0,6,0,8"
+            <TextBlock Margin="0,4,0,6"
                        Foreground="{StaticResource SubtleTextBrush}"
                        Text="{Binding ActiveTrackLabel, ElementName=RootWindow}" />
             <Grid Margin="0,0,0,6">
@@ -224,32 +210,46 @@
       </Border>
 
       <Border Grid.Column="0"
-              Grid.Row="1"
-              Margin="0,0,14,0"
+              Grid.Row="0"
+              Margin="0,0,14,14"
               Padding="16"
               CornerRadius="18"
               Background="{StaticResource PanelBackgroundBrush}"
               BorderBrush="{StaticResource BorderBrushStrong}"
               BorderThickness="1.5">
         <DockPanel>
-          <Grid DockPanel.Dock="Top" Margin="0,0,0,12">
-            <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="*" />
-              <ColumnDefinition Width="Auto" />
-            </Grid.ColumnDefinitions>
-            <TextBlock FontSize="20"
-                       FontWeight="Bold"
-                       Text="Batch Queue" />
-            <TextBlock Grid.Column="1"
-                       VerticalAlignment="Bottom"
-                       HorizontalAlignment="Right"
+          <StackPanel DockPanel.Dock="Top" Margin="0,0,0,12">
+            <TextBlock FontSize="18" FontWeight="Bold" Text="Load MP3 Files" />
+            <TextBlock Margin="0,6,0,12"
                        Foreground="{StaticResource SubtleTextBrush}"
-                       FontWeight="SemiBold"
-                       Text="Edit Artist/Title ID3 Tags" />
-          </Grid>
+                       TextWrapping="Wrap"
+                       Text="Choose multiple MP3 files or drag them onto this window." />
+            <WrapPanel Margin="0,0,0,8">
+              <Button Click="AddFilesButton_Click" Content="Add MP3 Files" />
+              <Button Click="RemoveSelectedButton_Click" Background="#FFF2ECE5" Foreground="{StaticResource TextBrush}" Content="Remove Active Track" />
+              <Button Click="ResetAllButton_Click" Background="#FFF2ECE5" Foreground="{StaticResource TextBrush}" Content="Reset All" />
+            </WrapPanel>
+
+            <Grid Margin="0,4,0,0">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+              </Grid.ColumnDefinitions>
+              <TextBlock FontSize="20"
+                         FontWeight="Bold"
+                         Text="Batch Queue" />
+              <TextBlock Grid.Column="1"
+                         VerticalAlignment="Bottom"
+                         HorizontalAlignment="Right"
+                         Foreground="{StaticResource SubtleTextBrush}"
+                         FontWeight="SemiBold"
+                         Text="Edit Artist/Title ID3 Tags" />
+            </Grid>
+          </StackPanel>
           <DataGrid ItemsSource="{Binding Tracks, ElementName=RootWindow}"
                     SelectedItem="{Binding SelectedTrack, ElementName=RootWindow, Mode=TwoWay}"
                     SelectionChanged="TrackGrid_SelectionChanged"
+                    ScrollViewer.VerticalScrollBarVisibility="Auto"
                     IsReadOnly="False">
             <DataGrid.Columns>
               <DataGridTextColumn Header="Track" Binding="{Binding FileName}" IsReadOnly="True" Width="1.6*" />
